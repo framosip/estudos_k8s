@@ -118,7 +118,7 @@ Rodando um cluster local utilizando o Kind com um control-plane e um worker, al�
 
 Executar o script localizado em `./other/kind-registry.sh`
 
-Caso esteja aqui apenas inicializando o cluster para ter o registry local criado, retorne a [etapa de criação das imagens clicando.](#primeira-coisa-a-se-fazer)
+Caso esteja aqui apenas inicializando o cluster para ter o registry local criado, retorne a [etapa de criação das imagens.](#primeira-coisa-a-se-fazer)
 
 ### Manifestos
 
@@ -328,7 +328,26 @@ Não esqueça de configurar o ip do host Docker referente ao MySQL.
 [Veja aqui como configurar](#muito-importante)
 
 
-
 ```
 kubectl apply -f ./k8s
 ```
+
+### Validando
+
+Ao executar 
+```
+kubectl get all
+```
+
+poderá ser visto algo parecido com:
+
+![alt text](other/assets/images/getall.png "Get All após primeiro apply")
+
+
+
+## Testando
+
+```
+curl --location --request POST 'http://localhost:30000/pessoa'
+```
+
