@@ -58,7 +58,7 @@ docker build -t framosip/api-k8s-nome:v1 -t framosip/api-k8s-nome:latest -f ./ap
 ```
 
 ```    
-docker build -t framosip/api-k8s-pessoa:v1 -t framosip/api-k8s-pessoa:latest -f ./apis/Dockerfile ./apis/cpf
+docker build -t framosip/api-k8s-pessoa:v1 -t framosip/api-k8s-pessoa:latest -f ./apis/Dockerfile ./apis/pessoa
 ```
 
 ### Tagear a imagens para o registry local
