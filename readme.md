@@ -31,6 +31,12 @@ Exemplo de Response:
 
 Propositalmente o banco de dados MySQL está sendo executado fora do cluster kubernetes.
 
+
+## Primeira coisa a se fazer
+
+Será necessário ter o registry local criado para armazenar as imagens. E esse procedimento é realizado quando o cluster no `kind` é criado. Vá até [inicializar o cluster](#inicializar-o-cluster) para poder também criar o registry local e logo em seguida retorne para os próximos passos.
+
+
 ## Docker
 
 ### Inicializar o banco de dados
@@ -111,6 +117,8 @@ Rodando um cluster local utilizando o Kind com um control-plane e um worker, al�
 ### Inicializar o cluster
 
 Executar o script localizado em `./other/kind-registry.sh`
+
+Caso esteja aqui apenas inicializando o cluster para ter o registry local criado, retorne a [etapa de criação das imagens clicando.](#primeira-coisa-a-se-fazer)
 
 ### Manifestos
 
