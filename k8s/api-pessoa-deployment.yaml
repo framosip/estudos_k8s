@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-pessoa
+spec:
+  selector:
+    matchLabels:
+      app: api-pessoa
+  template:
+    metadata:
+      labels:
+        app: api-pessoa
+    spec:
+      containers:
+      - name: api-pessoa
+        image: localhost:5001/api-k8s-pessoa
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+            scheme: HTTP
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 10
+        envFrom:
+          - configMapRef:
+              name: mysql
+          - secretRef:
+              name: mysql

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-nome
+spec:
+  selector:
+    matchLabels:
+      app: api-nome
+  template:
+    metadata:
+      labels:
+        app: api-nome
+    spec:
+      containers:
+      - name: api-nome
+        image: localhost:5001/api-k8s-nome
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 10        

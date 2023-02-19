@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-cpf
+spec:
+  selector:
+    matchLabels:
+      app: api-cpf
+  template:
+    metadata:
+      labels:
+        app: api-cpf
+    spec:
+      containers:
+      - name: api-cpf
+        image: localhost:5001/api-k8s-cpf
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 10        
