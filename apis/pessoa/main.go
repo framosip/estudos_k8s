@@ -43,7 +43,7 @@ func main() {
 	router.POST("/pessoa", postPessoa)
 	router.GET("/health", getHealth)
 
-	router.Run(":80")
+	router.Run(":8080")
 }
 
 func getHealth(c *gin.Context) {

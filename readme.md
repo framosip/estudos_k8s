@@ -282,9 +282,7 @@ metadata:
   name: api-pessoa
 ...
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 80
+...
     nodePort: 30000
   type: NodePort
 
