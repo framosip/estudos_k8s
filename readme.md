@@ -19,6 +19,14 @@ Exemplo de Response:
 ![alt text](other/assets/images/desenho_projeto.drawio.png "Arquitetura REST")
 
 
+## Tecnologias utilizadas
+
+ - Docker e Docker Compose
+ - [kind](https://kind.sigs.k8s.io/) para execução do cluster kubernetes localmente
+ - [kubectl](https://kind.sigs.k8s.io/) para execução dos comandos no cluster kubernetes
+ - Golang para alteração do código (não obrigatório)
+
+
 ## Banco de dados
 
 Propositalmente o banco de dados MySQL está sendo executado fora do cluster kubernetes.
@@ -264,7 +272,7 @@ metadata:
 
 ```
 
-**MUITO IMPORTANTE**
+##### **MUITO IMPORTANTE**
 
 É necessário informar o ip do host Docker neste configmap. Ou seja, o ip do computador que está executando o Docker e o cluster kubernetes.
 
@@ -301,6 +309,18 @@ metadata:
         envFrom:
 ...
           - secretRef:
-              name: mysql]
+              name: mysql
 ...
+```
+
+## Aplicando os manifestos
+
+**IMPORTANTE**
+Não esqueça de configurar o ip do host Docker referente ao MySQL.
+[Veja aqui como configurar](#muito-importante)
+
+
+
+```
+kubectl apply -f ./k8s
 ```
