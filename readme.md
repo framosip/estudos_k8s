@@ -36,7 +36,7 @@ Propositalmente o banco de dados MySQL está sendo executado fora do cluster kub
 ### Inicializar o banco de dados
 
 ```
-docker-compose -f ./docker/docker-compose.yaml up
+docker-compose -f ./docker/docker-compose.yaml up -d
 ```
 
 ### Buildar as imagens das APIs
@@ -58,7 +58,7 @@ docker build -t framosip/api-k8s-nome:v1 -t framosip/api-k8s-nome:latest -f ./ap
 ```
 
 ```    
-docker build -t framosip/api-k8s-pessoa:v1 -t framosip/api-k8s-cpf:pessoa -f ./apis/Dockerfile ./apis/cpf
+docker build -t framosip/api-k8s-pessoa:v1 -t framosip/api-k8s-pessoa:latest -f ./apis/Dockerfile ./apis/cpf
 ```
 
 ### Tagear a imagens para o registry local
