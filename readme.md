@@ -1,5 +1,33 @@
 # Estudos K8S
 
+ - [O projeto](#o-projeto)
+ - [Tecnologias utilizadas](#tecnologias-utilizadas)
+ - [Banco de Dados](#banco-de-dados)
+ - [Primeira coisa a se fazer](#primeira-coisa-a-se-fazer)
+ - [Docker](#docker)
+ - [Kubernetes](#kubernetes)
+    - [Inicializar o cluster](#inicializar-o-cluster)
+    - [Manifestos](#manifestos)
+    - [Deployment](#deployment)
+      - [Image Pull](#image-pull)
+      - [LivenessProbe](#livenessprobe)
+      - [ReadinessProbe](#readinessprobe)
+      - [StartupProbe](#startupprobe)
+      - [Resources](#resources)
+        - [Requests](#requests)
+        - [Limits](#limits)
+        - [Visualizando consumo de memória e CPU](#visualizando-consumo-de-memória-e-cpu)
+        - [Erros com o Metrics Server](#erros-com-o-metrics-server)
+    - [Service](#service)
+    - [ConfigMap](#configmap)
+      - [Muito Importante](#muito-importante)
+    - [Secret](#secret)
+ - [Aplicando os manifestos](#aplicando-os-manifestos)
+    - [Validando](#validando)
+ - [Testando](#testando)    
+
+---
+
 ## O projeto
 
 Uma API simples que recebe uma requisição e retorna o cadastro de uma pessoa contendo alguns campos. O cadastro também é salvo no banco de dados. Esses campos são obtidos em outras APIs.
@@ -18,6 +46,8 @@ Exemplo de Response:
 
 ![alt text](other/assets/images/desenho_projeto.drawio.png "Arquitetura REST")
 
+[Voltar para o topo](#estudos-k8s)
+
 
 ## Tecnologias utilizadas
 
@@ -26,16 +56,21 @@ Exemplo de Response:
  - [kubectl](https://kind.sigs.k8s.io/) para execução dos comandos no cluster kubernetes
  - Golang para alteração do código (não obrigatório)
 
+[Voltar para o topo](#estudos-k8s)
+
 
 ## Banco de dados
 
 Propositalmente o banco de dados MySQL está sendo executado fora do cluster kubernetes.
+
+[Voltar para o topo](#estudos-k8s)
 
 
 ## Primeira coisa a se fazer
 
 Será necessário ter o registry local criado para armazenar as imagens. E esse procedimento é realizado quando o cluster no `kind` é criado. Vá até [inicializar o cluster](#inicializar-o-cluster) para poder também criar o registry local e logo em seguida retorne para os próximos passos.
 
+[Voltar para o topo](#estudos-k8s)
 
 ## Docker
 
@@ -110,9 +145,13 @@ docker push localhost:5001/api-k8s-nome:latest
 docker push localhost:5001/api-k8s-pessoa:latest
 ```
 
+[Voltar para o topo](#estudos-k8s)
+
 ## Kubernetes
 
 Rodando um cluster local utilizando o Kind com um control-plane e um worker, além do registry local.
+
+[Voltar para o topo](#estudos-k8s)
 
 ### Inicializar o cluster
 
@@ -120,9 +159,13 @@ Executar o script localizado em `./other/kind-registry.sh`
 
 Caso esteja aqui apenas inicializando o cluster para ter o registry local criado, retorne a [etapa de criação das imagens.](#primeira-coisa-a-se-fazer)
 
+[Voltar para o topo](#estudos-k8s)
+
 ### Manifestos
 
 Os manifestos estão localizados em `./k8s`
+
+[Voltar para o topo](#estudos-k8s)
 
 
 ### Deployment
@@ -169,6 +212,8 @@ metadata:
 ...
 ```
 
+[Voltar para o topo](#estudos-k8s)
+
 #### Image Pull
 
 Os deployments estão configurados para sempre baixarem as imagens. Como está sendo utilizada a versão latest , sempre que manifestos são aplicados a imagem é novamente baixada.
@@ -183,6 +228,8 @@ kind: Deployment
         imagePullPolicy: Always
 ...   
 ```
+
+[Voltar para o topo](#estudos-k8s)
 
 #### LivenessProbe
 
@@ -206,6 +253,8 @@ kind: Deployment
           timeoutSeconds: 5
           failureThreshold: 10        
 ```
+
+[Voltar para o topo](#estudos-k8s)
 
 #### readinessProbe
 
@@ -253,6 +302,7 @@ Agora, quando os PODs estão prontos e seus endpoints configurados
 
 ![alt text](other/assets/images/endpoints_ok.png "Endpoints com IPs de PODs associados que estão prontos")
 
+[Voltar para o topo](#estudos-k8s)
 
 #### startupProbe
 
@@ -281,9 +331,13 @@ kind: Deployment
 ...       
 ```
 
+[Voltar para o topo](#estudos-k8s)
+
 #### Resources
 
 São configurados os recursos iniciais (`requests`) e máximos (`limits`) de memória e cpu.
+
+[Voltar para o topo](#estudos-k8s)
 
 ##### requests
 
@@ -306,6 +360,7 @@ kind: Deployment
             cpu: "100m"
 ...       
 ```
+[Voltar para o topo](#estudos-k8s)
 
 ##### limits
 
@@ -327,6 +382,8 @@ kind: Deployment
             cpu: "500m"        
 ...
 ```
+
+[Voltar para o topo](#estudos-k8s)
 
 ##### Visualizando consumo de memória e CPU
 
@@ -361,6 +418,8 @@ kubectl top nodes
 ```
 
 ![alt text](other/assets/images/top_nodes.png "Consumo de memória e CPU dos nodes")
+
+[Voltar para o topo](#estudos-k8s)
 
 
 ##### Erros com o Metrics Server
@@ -415,6 +474,7 @@ Ficando:
 ...
 ```
 
+[Voltar para o topo](#estudos-k8s)
 
 ### Service
 
@@ -498,6 +558,8 @@ metadata:
 
 ```
 
+[Voltar para o topo](#estudos-k8s)
+
 ### ConfigMap
 
 As configurações de acesso ao banco de dados (exceto usuário e senha) estão registradas no `mysql-configmap.yaml`
@@ -525,6 +587,8 @@ metadata:
 
 ```
 
+[Voltar para o topo](#estudos-k8s)
+
 ##### **MUITO IMPORTANTE**
 
 É necessário informar o ip do host Docker neste configmap. Ou seja, o ip do computador que está executando o Docker e o cluster kubernetes.
@@ -535,6 +599,8 @@ data:
   MYSQL_SERVER: <<IP_AQUI>>
 ...
 ```
+
+[Voltar para o topo](#estudos-k8s)
 
 ### Secret
 
@@ -566,6 +632,8 @@ metadata:
 ...
 ```
 
+[Voltar para o topo](#estudos-k8s)
+
 ## Aplicando os manifestos
 
 **IMPORTANTE**
@@ -576,6 +644,8 @@ Não esqueça de configurar o ip do host Docker referente ao MySQL.
 ```
 kubectl apply -f ./k8s
 ```
+
+[Voltar para o topo](#estudos-k8s)
 
 ### Validando
 
@@ -588,7 +658,7 @@ poderá ser visto algo parecido com:
 
 ![alt text](other/assets/images/getall.png "Get All após primeiro apply")
 
-
+[Voltar para o topo](#estudos-k8s)
 
 ## Testando
 
@@ -596,3 +666,4 @@ poderá ser visto algo parecido com:
 curl --location --request POST 'http://localhost:30000/pessoa'
 ```
 
+[Voltar para o topo](#estudos-k8s)
