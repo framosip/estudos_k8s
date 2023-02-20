@@ -328,6 +328,92 @@ kind: Deployment
 ...
 ```
 
+##### Visualizando consumo de memória e CPU
+
+É possível verificar o consumo de memória e CPU de um POD através do `Metrics Server`. Para instalar e configurar consulte o link https://github.com/kubernetes-sigs/metrics-server. 
+
+Para visualizar o consumo de memória e CPU dos PODs
+
+```
+kubectl top pods
+```
+
+![alt text](other/assets/images/top_pods.png "Consumo de memória e CPU dos PODs")
+
+Para visualizar o consumo de memória e CPU de um POD específico 
+
+```
+kubectl top pod <<nome_do_pod>>
+```
+
+Para visualizar o consumo de memória e CPU por container
+
+```
+kubectl top pods --containers
+```
+
+![alt text](other/assets/images/top_pods_containers.png "Consumo de memória e CPU dos PODs por container")
+
+Ainda é possível visualizar o consumo de memória e CPU dos nodes
+
+```
+kubectl top nodes
+```
+
+![alt text](other/assets/images/top_nodes.png "Consumo de memória e CPU dos nodes")
+
+
+##### Erros com o Metrics Server
+
+Alguns erros podem ser encontrados ao utilizar o Metrics Server. Basta editar o arquivo de configurações.
+
+Editar o arquivo utilizando o editor `nano`
+
+```
+KUBE_EDITOR='nano' kubectl edit deployments.apps -n kube-system metrics-server
+```
+
+Adicionar `hostNetwork: true` logo após `dnsPolicy: ClusterFirst`
+
+```
+...
+      dnsPolicy: ClusterFirst
+      hostNetwork: true
+...
+```
+
+Adicionar as linhas:
+
+```
+- --kubelet-insecure-tls=true
+- --kubelet-preferred-address-types=InternalIP
+```
+
+logo após 
+
+```
+    spec:
+      containers:
+      - args:
+        - --cert-dir=/tmp
+        - --secure-port=4443
+```
+
+Ficando:
+
+```
+...
+    spec:
+      containers:
+      - args:
+        - --cert-dir=/tmp
+        - --secure-port=4443
+        - --kubelet-insecure-tls=true
+        - --kubelet-preferred-address-types=InternalIP
+        - --kubelet-use-node-status-port
+        - --metric-resolution=15s
+...
+```
 
 
 ### Service
