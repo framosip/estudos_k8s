@@ -169,7 +169,7 @@ metadata:
 ...
 ```
 
-### Image Pull
+#### Image Pull
 
 Os deployments estão configurados para sempre baixarem as imagens. Como está sendo utilizada a versão latest , sempre que manifestos são aplicados a imagem é novamente baixada.
 
@@ -184,7 +184,7 @@ kind: Deployment
 ...   
 ```
 
-### LivenessProbe
+#### LivenessProbe
 
 Os PODs estão configurados para checar se a aplicação esta disponível através de uma chamada HTTP GET no endpoint `/health` . Utilizando a porta `8080` que está exposta no container. A checagem é realizada a cada `5` segundos (aguardando por até `5` segundos de timeout) por até `10` vezes podendo atingir o `failureThreshold`. Quando isso acontece o POD é reiniciado. Logo, em média, nessas configurações, o POD pode ser reiniciado em `50`segundos (`5 * 10`) .
 
@@ -207,7 +207,7 @@ kind: Deployment
           failureThreshold: 10        
 ```
 
-### readinessProbe
+#### readinessProbe
 
 Os PODs estão configurados para checar se a aplicação esta pronta através de uma chamada HTTP GET no endpoint `/ready` . Utilizando a porta `8080` que está exposta no container. A checagem é realizada a cada `5` segundos (aguardando por até `5` segundos de timeout) por até `10` vezes podendo atingir o `failureThreshold`. Foi inserida aqui a propriedade `successThreshold` que, neste exemplo, tornará o POD com a aplicação pronta quando a configuração retornar sucesso por `3` vezes.
 
@@ -254,7 +254,7 @@ Agora, quando os PODs estão prontos e seus endpoints configurados
 ![alt text](other/assets/images/endpoints_ok.png "Endpoints com IPs de PODs associados que estão prontos")
 
 
-### startupProbe
+#### startupProbe
 
 Os PODs estão configurados para checar se a aplicação foi iniciada através de uma chamada HTTP GET no endpoint `/health` . Utilizando a porta `8080` que está exposta no container. A checagem é realizada a cada `5` segundos (aguardando por até `5` segundos de timeout) por até `20` vezes podendo atingir o `failureThreshold`. Quando isso acontece o POD é reiniciado. Logo, em média, nessas configurações, o POD pode ser reiniciado em `100`segundos (`5 * 20`) caso não a aplicação não seja iniciada.
 
@@ -280,6 +280,54 @@ kind: Deployment
           failureThreshold: 20          
 ...       
 ```
+
+#### Resources
+
+São configurados os recursos iniciais (`requests`) e máximos (`limits`) de memória e cpu.
+
+##### requests
+
+O Kubernetes procurará um `node` que possa garantir os recursos iniciais necessários para executar a aplicação dentro do POD. Ou seja, `32Mi (mebibytes)` de memória e `100m (milicores)` de CPU.
+
+**IMPORTANTE**: A aplicação será alocada em um `node` que garanta essas configurações mínimas. Mas não necessariamente a aplicação iniciará com essas configurações. Pode, inclusive, iniciar com menos.
+
+**IMPORTANTE**: As configurações de recurso são para o container e não para o POD. Então, por exemplo, caso existam 2 containers com a mesma configuração, o total de recursos iniciais do POD seria 64Mi de memória e 200m de CPU.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+...
+    spec:
+      containers:
+...
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+...       
+```
+
+##### limits
+
+Protege o cluster Kubernetes limitando o container do POD a um limite de consumo de memória e CPU.
+
+O container atingirá o máximo de `128Mi (mebibytes)` de memória e `500m (milicores)` de CPU. Podendo apresentar erro de `OutOfMemory` e reiniciar caso atinja ou supere os limites.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+...
+    spec:
+      containers:
+...
+        resources:
+...
+          limits:
+            memory: "128Mi"
+            cpu: "500m"        
+...
+```
+
 
 
 ### Service

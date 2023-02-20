@@ -15,6 +15,13 @@ spec:
       - name: api-nome
         image: localhost:5001/api-k8s-nome
         imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
         livenessProbe:
           httpGet:
             path: /health
