@@ -22,6 +22,11 @@
     - [ConfigMap](#configmap)
       - [Muito Importante](#muito-importante)
     - [Secret](#secret)
+    - [HPA](#hpa)
+    - [QoS Class](#qos-class)
+      - [BestEffort](#besteffort)
+      - [Burstable](#burstable)
+      - [Guaranteed](#guaranteed)
  - [Aplicando os manifestos](#aplicando-os-manifestos)
     - [Validando](#validando)
  - [Testando](#testando)    
@@ -383,6 +388,8 @@ kind: Deployment
 ...
 ```
 
+**IMPORTANTE**: Se não for configurado um `requests` , o mesmo será sempre igual ao `limits` automáticamente.
+
 [Voltar para o topo](#estudos-k8s)
 
 ##### Visualizando consumo de memória e CPU
@@ -629,6 +636,170 @@ metadata:
 ...
           - secretRef:
               name: mysql
+...
+```
+
+[Voltar para o topo](#estudos-k8s)
+
+
+### HPA
+
+Utilizado para controlar o escalonamento horizontal dos PODs. Utiliza-se de métricas do deployment para decidar quando aumentar ou diminuir a quantidade de PODs. As métricas são referentes aos PODs e não aos containers.
+
+Neste exemplo o HPA tem como `target` o `Deployment` de nome `api-cpf`. Quando os PODs atingirem `50%` de utilização de `CPU` OU `80%` de utilização de `memória` será criado um novo POD até que atinja o limite máximo de PODs (`maxReplicas`). O mesmo acontece quando `AMBAS` as métricas estivem abaixo da média configurada. PODs serão removidos até atingir o limite mínimo de PODs (`minReplicas`).
+
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-cpf
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api-cpf
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+```
+
+[Voltar para o topo](#estudos-k8s)
+
+### QoS Class
+
+Quando configurados resources em um container do POD, o POD recebe uma classe de configuração QoS (Quality of Service). Isso definirá entre três classes (`Guaranteed`,`Burstable` e `BestEffort`) como o POD será destruído no caso de despejo.
+
+[Voltar para o topo](#estudos-k8s)
+
+#### BestEffort
+
+Um container criado dentro de um POD sem qualquer configuração de `Resources` possui `QoS Class` como `BestEffort`. Um POD `BestEffort` não possui nenhuma configuração de memória ou CPU e estes PODs são os primeiros a serem eliminados caso o `node` fique sem recursos.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-cpf
+...
+    spec:
+      containers:
+      - name: api-cpf
+        image: localhost:5001/api-k8s-cpf
+        imagePullPolicy: Always
+```
+
+Ao aplicar e descrever o POD criado
+
+```
+Name:             api-cpf-787bd9d768-v8nnl
+...
+Containers:
+  api-cpf:
+    ...
+    Image:          localhost:5001/api-k8s-cpf
+    ...
+...
+QoS Class:                   BestEffort
+...
+Events:
+...
+```
+
+[Voltar para o topo](#estudos-k8s)
+
+### Burstable
+
+Um container criado dentro de um POD com configurações de `resource` diferentes nas propriedades `requests` e `limits` possui `QoS Class` como `Burstable`. PODs `Burstable` possuem uma garantia mínima dos recursos. Em situação de pressão no `node` estes PODs tendem a serem eliminados caso não existam outros que sejam `BestEffort`.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-cpf
+...
+    spec:
+      containers:
+      - name: api-cpf
+        image: localhost:5001/api-k8s-cpf
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"        
+...
+```
+
+Ao aplicar e descrever o POD criado
+
+```
+Name:             api-cpf-67d7fc6f66-hkstf
+...
+Containers:
+  api-cpf:
+    ...
+    Image:          localhost:5001/api-k8s-cpf
+    ...
+QoS Class:                   Burstable
+...
+Events:
+...
+```
+
+[Voltar para o topo](#estudos-k8s)
+
+### Guaranteed
+
+Um container criado dentro de um POD com configurações de `resource` iguais nas propriedades `requests` e `limits` possui `QoS Class` como `Guaranteed`. O mesmo acontece caso não seja informado `requests`, ou seja, apenas `limits`. Nesse caso o Kubernetes iguala o `requests` ao `limits`. PODs `Guaranteed` são `top-priority` e possuem garantia de não serem eliminados até que excedam seus limites.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-cpf
+...
+    spec:
+      containers:
+      - name: api-cpf
+        image: localhost:5001/api-k8s-cpf
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "500m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"        
+...
+```
+
+Ao aplicar e descrever o POD criado
+
+```
+Name:             api-cpf-6b674fcbd4-l5g2x
+...
+Containers:
+  api-cpf:
+    ...
+    Image:          localhost:5001/api-k8s-cpf
+    ...
+QoS Class:                   Guaranteed
+...
+Events:
 ...
 ```
 
