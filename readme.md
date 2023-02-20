@@ -247,6 +247,12 @@ Aqui um exemplo onde os deployments possuem apenas uma réplica e esta não est�
 
 ![alt text](other/assets/images/endpoints.png "Endpoints sem IPs de PODs associados por não estarem prontos")
 
+Agora, quando os PODs estão prontos e seus endpoints configurados
+
+![alt text](other/assets/images/pods_ok.png "PODs prontos")
+
+![alt text](other/assets/images/endpoints_ok.png "Endpoints com IPs de PODs associados que estão prontos")
+
 
 ### Service
 
