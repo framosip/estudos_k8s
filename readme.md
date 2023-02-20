@@ -27,6 +27,7 @@
       - [BestEffort](#besteffort)
       - [Burstable](#burstable)
       - [Guaranteed](#guaranteed)
+    - [Limit Range](#limit-range)
  - [Aplicando os manifestos](#aplicando-os-manifestos)
     - [Validando](#validando)
  - [Testando](#testando)    
@@ -719,7 +720,7 @@ Events:
 
 [Voltar para o topo](#estudos-k8s)
 
-### Burstable
+#### Burstable
 
 Um container criado dentro de um POD com configurações de `resource` diferentes nas propriedades `requests` e `limits` possui `QoS Class` como `Burstable`. PODs `Burstable` possuem uma garantia mínima dos recursos. Em situação de pressão no `node` estes PODs tendem a serem eliminados caso não existam outros que sejam `BestEffort`.
 
@@ -762,7 +763,7 @@ Events:
 
 [Voltar para o topo](#estudos-k8s)
 
-### Guaranteed
+#### Guaranteed
 
 Um container criado dentro de um POD com configurações de `resource` iguais nas propriedades `requests` e `limits` possui `QoS Class` como `Guaranteed`. O mesmo acontece caso não seja informado `requests`, ou seja, apenas `limits`. Nesse caso o Kubernetes iguala o `requests` ao `limits`. PODs `Guaranteed` são `top-priority` e possuem garantia de não serem eliminados até que excedam seus limites.
 
@@ -804,6 +805,55 @@ Events:
 ```
 
 [Voltar para o topo](#estudos-k8s)
+
+
+### Limit Range
+
+Limita valores de `resource` (`requests` e `limits`) para criação de containers ou PODs e define valores padrões caso não seja fornecido no `Deployment`.
+
+Neste exemplo são aplicados limites para criação de `Container` (type: `Container`) com:
+
+ - `limits` `min` de `100m` de `cpu` e `32Mi` de `memória`. 
+ - `limits` `max` de `500m` de `cpu` e `128Mi` de `memória`. 
+ - `limits` `default` de `300m` de `cpu` e `64Mi` de `memória`. 
+
+Ou seja:
+
+ - Caso não seja informado `resource` `limits` no `Deployment` será utilizado o valor `default`
+ - Caso seja informado `resource` `limits` no `Deployment` o mínimo não pode ser menor que `min` e o máximo não pode ser maior que o `max`.
+
+Ainda:
+
+ - Caso não seja informado `resource` `requests` será utilizado o `defaultRequest` , ou seja, `100m` de `cpu` e `32Mi` de `memória`.
+
+```yaml
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: api-limites
+spec:
+  limits:
+    - min: 
+        cpu: "100m"
+        memory: "32Mi"  
+      max:
+        cpu: "500m"
+        memory: "128Mi"    
+      default:
+        cpu: "300m"
+        memory: "64Mi"
+      defaultRequest:
+        cpu: "100m"
+        memory: "32Mi"
+      type: Container
+        
+```
+
+
+
+[Voltar para o topo](#estudos-k8s)
+
+
 
 ## Aplicando os manifestos
 
