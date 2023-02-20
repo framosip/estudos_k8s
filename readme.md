@@ -186,7 +186,9 @@ kind: Deployment
 
 ### LivenessProbe
 
-Os PODs estão configurados para checar se estão disponívels através de uma chamada HTTP GET no endpoint `/health` . Utilizando a porta `8080` que está exposta no container. A checagem é realizada a cada `5` segundos (aguardando por até `5` segundos de timout) por até `10` vezes podendo atingir o `failureThreshold`. Quando isso acontece o POD é reiniciado. Logo, em média, nessas configurações, o POD pode ser reiniciado em `50`segundos (`5 * 10`) .
+Os PODs estão configurados para checar se estão disponívels através de uma chamada HTTP GET no endpoint `/health` . Utilizando a porta `8080` que está exposta no container. A checagem é realizada a cada `5` segundos (aguardando por até `5` segundos de timeout) por até `10` vezes podendo atingir o `failureThreshold`. Quando isso acontece o POD é reiniciado. Logo, em média, nessas configurações, o POD pode ser reiniciado em `50`segundos (`5 * 10`) .
+
+Um POD não saudável irá reiniciar.
 
 ```yaml
 apiVersion: apps/v1
@@ -204,6 +206,46 @@ kind: Deployment
           timeoutSeconds: 5
           failureThreshold: 10        
 ```
+
+### readinessProbe
+
+Os PODs estão configurados para checar se estão prontos através de uma chamada HTTP GET no endpoint `/ready` . Utilizando a porta `8080` que está exposta no container. A checagem é realizada a cada `5` segundos (aguardando por até `5` segundos de timeout) por até `10` vezes podendo atingir o `failureThreshold`. Foi inserida aqui a propriedade `successThreshold` que, neste exemplo, tornará o POD pronto quando a configuração retornar sucesso por `3` vezes.
+
+Um POD não pronto não reiniciará. Ficará checando se está pronto, até que esteja.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+...
+    spec:
+      containers:
+...
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 10
+          successThreshold: 3
+...
+       
+```
+
+PODs não prontos não terão seus IPs listados como endpoints, ou seja, não receberão requisições até que estejam prontos.
+
+É possível ver a lista de endpoints com o comando
+
+```
+kubectl get endpoints
+```
+
+Aqui um exemplo onde os deployments possuem apenas uma réplica e esta não está pronta (0/1):
+
+![alt text](other/assets/images/pods_nao_prontos.png "PODs não prontos")
+
+![alt text](other/assets/images/endpoints.png "Endpoints sem IPs de PODs associados por não estarem prontos")
 
 
 ### Service

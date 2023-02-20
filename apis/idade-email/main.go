@@ -26,6 +26,7 @@ func main() {
 	router := gin.Default()
 	router.GET("/new", getNew)
 	router.GET("/health", getHealth)
+	router.GET("/ready", getReady)
 
 	router.Run(":8080")
 }
@@ -71,5 +72,9 @@ func getNew(c *gin.Context) {
 }
 
 func getHealth(c *gin.Context) {
+	c.IndentedJSON(http.StatusOK, nil)
+}
+
+func getReady(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, nil)
 }
