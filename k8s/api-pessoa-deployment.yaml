@@ -32,6 +32,14 @@ spec:
           timeoutSeconds: 5
           failureThreshold: 10
           successThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 20          
         envFrom:
           - configMapRef:
               name: mysql

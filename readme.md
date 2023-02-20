@@ -186,9 +186,9 @@ kind: Deployment
 
 ### LivenessProbe
 
-Os PODs estão configurados para checar se estão disponívels através de uma chamada HTTP GET no endpoint `/health` . Utilizando a porta `8080` que está exposta no container. A checagem é realizada a cada `5` segundos (aguardando por até `5` segundos de timeout) por até `10` vezes podendo atingir o `failureThreshold`. Quando isso acontece o POD é reiniciado. Logo, em média, nessas configurações, o POD pode ser reiniciado em `50`segundos (`5 * 10`) .
+Os PODs estão configurados para checar se a aplicação esta disponível através de uma chamada HTTP GET no endpoint `/health` . Utilizando a porta `8080` que está exposta no container. A checagem é realizada a cada `5` segundos (aguardando por até `5` segundos de timeout) por até `10` vezes podendo atingir o `failureThreshold`. Quando isso acontece o POD é reiniciado. Logo, em média, nessas configurações, o POD pode ser reiniciado em `50`segundos (`5 * 10`) .
 
-Um POD não saudável irá reiniciar.
+Um POD com uma aplicação não saudável irá reiniciar.
 
 ```yaml
 apiVersion: apps/v1
@@ -209,9 +209,9 @@ kind: Deployment
 
 ### readinessProbe
 
-Os PODs estão configurados para checar se estão prontos através de uma chamada HTTP GET no endpoint `/ready` . Utilizando a porta `8080` que está exposta no container. A checagem é realizada a cada `5` segundos (aguardando por até `5` segundos de timeout) por até `10` vezes podendo atingir o `failureThreshold`. Foi inserida aqui a propriedade `successThreshold` que, neste exemplo, tornará o POD pronto quando a configuração retornar sucesso por `3` vezes.
+Os PODs estão configurados para checar se a aplicação esta pronta através de uma chamada HTTP GET no endpoint `/ready` . Utilizando a porta `8080` que está exposta no container. A checagem é realizada a cada `5` segundos (aguardando por até `5` segundos de timeout) por até `10` vezes podendo atingir o `failureThreshold`. Foi inserida aqui a propriedade `successThreshold` que, neste exemplo, tornará o POD com a aplicação pronta quando a configuração retornar sucesso por `3` vezes.
 
-Um POD não pronto não reiniciará. Ficará checando se está pronto, até que esteja.
+Um POD que possui a aplicação não pronta não reiniciará. Ficará checando se está pronta, até que esteja.
 
 ```yaml
 apiVersion: apps/v1
@@ -252,6 +252,34 @@ Agora, quando os PODs estão prontos e seus endpoints configurados
 ![alt text](other/assets/images/pods_ok.png "PODs prontos")
 
 ![alt text](other/assets/images/endpoints_ok.png "Endpoints com IPs de PODs associados que estão prontos")
+
+
+### startupProbe
+
+Os PODs estão configurados para checar se a aplicação foi iniciada através de uma chamada HTTP GET no endpoint `/health` . Utilizando a porta `8080` que está exposta no container. A checagem é realizada a cada `5` segundos (aguardando por até `5` segundos de timeout) por até `20` vezes podendo atingir o `failureThreshold`. Quando isso acontece o POD é reiniciado. Logo, em média, nessas configurações, o POD pode ser reiniciado em `100`segundos (`5 * 20`) caso não a aplicação não seja iniciada.
+
+Um POD que tem a aplicação não iniciada irá reiniciar.
+
+Foi utilizado o mesmo endpoint de health por que o objetivo é a aplicação responder 200. Não importa qual endpoint. o 200 indica que a aplicação iniciou.
+
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+...
+    spec:
+      containers:
+ ...
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 20          
+...       
+```
 
 
 ### Service
